@@ -2,8 +2,10 @@
 
 S3method(confint,hmmSSF)
 S3method(print,hmmSSF)
+export(diagnose_hmmSSF)
 export(get_controls)
 export(hmmSSF)
+export(hmmSSF_multistart)
 export(local_decoding)
 export(nllk)
 export(plot_ssf)

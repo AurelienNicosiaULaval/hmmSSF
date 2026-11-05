@@ -12,7 +12,11 @@ hmmSSF(
   ssf_par0,
   tpm_par0 = NULL,
   optim_opts = list(trace = 0, maxit = 50000),
-  method = "Nelder-Mead"
+  method = "Nelder-Mead",
+  multistart = FALSE,
+  multistart_opts = list(),
+  diagnose = FALSE,
+  diagnose_opts = list()
 )
 }
 \arguments{
@@ -35,8 +39,28 @@ intercepts) and one column for each off-diagonal transition probability.}
 \item{optim_opts}{Additional options to be passed to optim, as a named list
 (e.g., maxit, trace)}
 
-\item{method}{Optimisation method used in optim (by default "Nelder-Mead)
-but can also take any other option available in optim}
+\item{method}{Optimisation method passed to \code{optim}, defaulting to
+\code{"Nelder-Mead"}. See \code{\link{hmmSSF_multistart}} for methods
+available with multiple starts.}
+
+\item{multistart}{Logical; use short-run/long-run multi-start optimisation?
+The default is \code{FALSE}, which retains the original single-start fit.}
+
+\item{multistart_opts}{Named list of multi-start settings: \code{n_starts},
+\code{n_long}, \code{jitter_sd}, \code{seed}, \code{short_maxit}, and
+optionally \code{long_maxit}. See \code{\link{hmmSSF_multistart}}.
+Unless overridden, \code{optim_opts$maxit} sets the long-run budget.}
+
+\item{diagnose}{Logical; calculate and return numerical diagnostics? The
+default is \code{FALSE}; calculating a numerical gradient can be slow.}
+
+\item{diagnose_opts}{Named list of diagnostic settings: \code{gradient}
+and \code{eigen_tol}. See \code{\link{diagnose_hmmSSF}}.}
+}
+\value{
+An \code{hmmSSF} object. When requested, \code{multistart} contains
+the run history and \code{diagnostics} contains the diagnostic results.
+These diagnostics do not establish a global optimum or model validity.
 }
 \description{
 Fit the HMM-SSF

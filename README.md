@@ -6,7 +6,7 @@ The HMM-SSF is a hidden Markov model, where the (behavioural) states are defined
 
 ### Vignette
 
-The vignette is the best place to get started; it presents an example analysis from data preparation to interpretation and visualisation of results.
+The vignette presents an example analysis from data preparation to interpretation and visualisation of results. It also illustrates optional multiple-start fitting and convergence diagnostics.
 
 - [Fit state-switching step selection functions in hmmSSF](https://github.com/NJKlappstein/hmmSSF/blob/main/vignettes/hmmSSF_introduction.pdf)
 
@@ -24,6 +24,3 @@ Note that the package is under development, so please keep an eye out for future
 Klappstein NJ, L Thomas, & T Michelot (2023). [Flexible hidden Markov models for behaviour-dependent habitat selection](https://movementecologyjournal.biomedcentral.com/articles/10.1186/s40462-023-00392-3). Movement Ecology 11:30.
 
 Nicosia, A., Duchesne, T., Rivest, L. P., & Fortin, D. (2017). [A multi-state conditional logistic regression model for the analysis of animal movement](https://projecteuclid.org/journals/annals-of-applied-statistics/volume-11/issue-3/A-multi-state-conditional-logistic-regression-model-for-the-analysis/10.1214/17-AOAS1045.full). Annals of Applied Statistics 11:1537-1560.
-
-
-

@@ -13,8 +13,12 @@ print.hmmSSF <- function(x, ...) {
   cat("Negative log-likelihood:", mod$fit$value, "\n")
   cat("Convergence code:", mod$fit$convergence, "\n\n")
 
-  # get parameters and 95% confidence intervals
-  par <- confint(mod, pretty = TRUE)
+  if (is.null(mod$fit$hessian)) {
+    cat("Confidence intervals unavailable without a Hessian.\n\n")
+    par <- mod$par
+  } else {
+    par <- confint(mod, pretty = TRUE)
+  }
 
   cat("SSF model:\n")
   cat(deparse(mod$args$ssf_formula))
@@ -24,7 +28,7 @@ print.hmmSSF <- function(x, ...) {
   cat("\nTPM model:\n")
   cat(deparse(mod$args$tpm_formula))
   cat("\n")
-  if(deparse(mod$args$tpm_formula) == "~1") {
+  if(paste(deparse(mod$args$tpm_formula), collapse = " ") == "~1") {
     tpm <- predict_tpm(mod = mod,
                        new_data = mod$args$data[1,],
                        return_CI = FALSE)

@@ -8,7 +8,8 @@
 #' @export
 
 predict_ssf <- function(mod, new_data) {
-  ssf_MM <- model.matrix(mod$args$ssf_formula, new_data)[,-1]
+  ssf_MM <- model.matrix(mod$args$ssf_formula, new_data)
+  ssf_MM <- ssf_MM[, colnames(ssf_MM) != "(Intercept)", drop = FALSE]
   pred <- exp(ssf_MM %*% mod$par$ssf)
   return(pred)
 }

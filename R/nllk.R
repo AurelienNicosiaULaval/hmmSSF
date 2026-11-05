@@ -34,15 +34,30 @@ nllk <- function(par,
                                n_states = n_states,
                                sampling_densities = sampling_densities,
                                n_obs = n_obs)
-  densities <- ifelse(is.na(densities), 1, densities)
+  hmmssf_forward_nllk(densities, par$tpm, tpm_MM, ID, stratum, n_states)
+}
 
+hmmssf_forward_nllk <- function(densities, tpm, tpm_MM, ID, stratum,
+                                n_states, check = FALSE) {
+  densities <- ifelse(is.na(densities), 1, densities)
   # get array of all time-dependent transition probability matrices
   Gamma <- moveHMM:::trMatrix_rcpp(nbStates = n_states,
-                                   beta = par$tpm,
+                                   beta = tpm,
                                    covs = tpm_MM)
 
   # get delta from stationary distribution
-  delta <- solve(t(diag(n_states) - Gamma[,,1] + 1), rep(1, n_states))
+  initial_matrix <- t(diag(n_states) - Gamma[,,1] + 1)
+  if (check) {
+    if (any(!is.finite(Gamma)))
+      hmmssf_numerical_error("Non-finite transition probabilities")
+    delta <- tryCatch(solve(initial_matrix, rep(1, n_states)), error = function(e) {
+      hmmssf_numerical_error("Could not calculate the stationary distribution")
+    })
+    if (any(!is.finite(delta) | delta < 0))
+      hmmssf_numerical_error("Invalid stationary probabilities")
+  } else {
+    delta <- solve(initial_matrix, rep(1, n_states))
+  }
 
   ## Run forward algorithm looped over track ID
   llk <- 0

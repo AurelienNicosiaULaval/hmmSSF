@@ -40,7 +40,7 @@ In our experience, this model complexity often leads to numerical instability, i
 
 - use a simpler model formulation. The more complex the model, the more difficult it is to fit. It is usually good to start from the simplest model, i.e., a 2-state model with no covariates on the transition probabilities, and build up complexity if it seems possible.
 
-- try different sets of starting values for the parameters (see "Starting parameter values" below)
+- try different sets of starting values for the parameters (see "Starting parameter values" below). The `multistart = TRUE` option in `hmmSSF()` automates this, and `diagnose = TRUE` provides numerical diagnostics (see "Multiple starts and convergence diagnostics" below).
 
 # Data preparation
 
@@ -138,7 +138,7 @@ ssf_formula <- ~ step + log(step) + cos(angle) + cov1
 
 ## Starting parameter values
 
-In hmmSSF, the model is fitted through numerical likelihood optimisation (via \texttt{nlm()}), and starting values need to be chosen for the model parameters. The choice of these values does not affect the model specification, but poorly chosen values can lead to numerical problems (e.g., failure of optimiser to converge). The general idea is that, if starting values are close to the "true" parameters, it will be easier for the optimiser to converge. In practice, the true parameters are not known, and so our best bet is to choose plausible values given the data. 
+In hmmSSF, the model is fitted through numerical likelihood optimisation (via \texttt{optim()}), and starting values need to be chosen for the model parameters. The choice of these values does not affect the model specification, but poorly chosen values can lead to numerical problems (e.g., failure of optimiser to converge). The general idea is that, if starting values are close to the "true" parameters, it will be easier for the optimiser to converge. In practice, the true parameters are not known, and so our best bet is to choose plausible values given the data.
 
 Here, we use the fact that the selection parameters for \texttt{step} and \texttt{log(step)} are linked to the mean $\mu_L$ and standard deviation $\sigma_L$ of a gamma distribution through the relationships:
 $$
@@ -183,6 +183,50 @@ The fitted model object can then be printed to find the estimated parameter valu
 ```{r mod-print}
 mod
 ```
+
+## Multiple starts and convergence diagnostics
+
+The choice of starting values can affect numerical optimisation. We can fit the
+same model from several starting values by setting `multistart = TRUE`. Here we
+use four short runs and continue the two best ones with longer optimisations.
+We also set `diagnose = TRUE` to calculate convergence diagnostics. This fit
+uses the BFGS optimiser; the previous fit used the default Nelder-Mead method.
+
+```{r multi-fit}
+mod_multi <- hmmSSF(ssf_formula = ssf_formula,
+                    n_states = n_states,
+                    data = data,
+                    ssf_par0 = ssf_par0,
+                    method = "BFGS",
+                    optim_opts = list(maxit = 500),
+                    multistart = TRUE,
+                    diagnose = TRUE,
+                    multistart_opts = list(n_starts = 4,
+                                           n_long = 2,
+                                           short_maxit = 25,
+                                           jitter_sd = 0.25,
+                                           seed = 42))
+```
+
+The summary gives the objective value and convergence code for each run. It
+also shows how many trial evaluations were rejected because their objective
+could not be evaluated numerically. The smaller the objective, the larger the
+likelihood.
+
+```{r multi-summary}
+mod_multi$multistart$summary[, c("stage", "start", "objective",
+                                "convergence", "rejected_evaluations")]
+```
+
+We can also inspect the gradient and Hessian of the selected fit.
+
+```{r multi-diagnostics}
+mod_multi$diagnostics[c("convergence", "max_abs_gradient", "hessian_status")]
+```
+
+Here the runs reach similar objective values, and the selected fit has a small
+gradient and a positive-definite Hessian. These are useful checks, but they do
+not guarantee that the global maximum has been found.
 
 # Interpretation of results
 
